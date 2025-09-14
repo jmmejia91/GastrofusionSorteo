@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteo Gastrosorteo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+            flex-direction: column;
+        }
+        .raffle-container {
+            background-color: #121212;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid #333;
+            width: 100%;
+            max-width: 800px;
+        }
+        .prize-card {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #FFD700;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .prize-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
+        }
+        .prize-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(255, 215, 0, 0.3);
+            margin-bottom: 0.8rem;
+        }
+        .prize-description {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-top: 0.8rem;
+            color: #fff;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #555;
+            border-radius: 0.75rem;
+            padding: 0.8rem;
+            background-color: #1a1a1a;
+        }
+        .raffle-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(180deg, #FFDD44, #FFC400);
+            color: #333;
+        }
+        .raffle-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+        }
+        .raffle-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+            color: #aaa;
+        }
+        .winner-name, .winner-phone {
+            margin-top: 0.4rem;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #FFEB3B;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        .logo-top {
+            margin-bottom: 2rem;
+            max-width: 400px;
+            width: 90%;
+        }
+        .sponsors {
+            margin-top: 3rem;
+            max-width: 90%;
+            height: auto;
+        }
+        .scrolling-names {
+            height: 3rem;
+            overflow: hidden;
+            position: relative;
+            display: none;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #FFD700;
+            margin-top: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        .pre-raffle-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #E0E0E0;
+        }
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #FFDD44;
+            text-shadow: 3px 3px 6px rgba(255, 215, 0, 0.4);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-black text-white flex flex-col items-center justify-center p-8">
+    <img src="https://res.cloudinary.com/drbilmgep/image/upload/v1757518619/logos_feqfwl.png" alt="Logos del Evento" class="logo-top">
+    <div id="raffleContainer" class="raffle-container">
+        <h1 class="main-title text-center leading-tight">¡Comienza el Sorteo!</h1>
+        <div class="prize-card">
+            <h2 class="prize-title">Premio: Moto Honda CB100</h2>
+            <div id="scrollingMoto" class="scrolling-names"></div>
+            <div class="prize-description" id="winnerMoto"><span class="pre-raffle-text">Presiona "Sortear" para empezar</span></div>
+            <button id="raffleBtnMoto" class="raffle-button mt-4">Sortear Ganador de la Moto</button>
+        </div>
+        <div class="prize-card">
+            <h2 class="prize-title">Premio: Paellera Royal Prestige</h2>
+            <div id="scrollingPaellera" class="scrolling-names"></div>
+            <div class="prize-description" id="winnerPaellera"><span class="pre-raffle-text">Presiona "Sortear" para empezar</span></div>
+            <button id="raffleBtnPaellera" class="raffle-button mt-4">Sortear Ganador de la Paellera</button>
+        </div>
+    </div>
+    <img src="https://res.cloudinary.com/drbilmgep/image/upload/v1757518647/Patrocinadores_mq07ap.png" alt="Patrocinadores del Evento" class="sponsors">
+    <script>
+        let allParticipants = [];
+        let isAnimating = { moto: false, paellera: false };
+
+        const loadParticipants = async () => {
+            try {
+                const response = await fetch('participantes.json');
+                if (!response.ok) throw new Error('Error al cargar los participantes.');
+                allParticipants = await response.json();
+                console.log(`Se cargaron ${allParticipants.length} participantes.`);
+            } catch (error) {
+                console.error('Error al cargar JSON:', error);
+            }
+        };
+
+        const displayWinnerContent = (prize, winner) => {
+            const prizeCapitalized = prize.charAt(0).toUpperCase() + prize.slice(1);
+            const displayElement = document.getElementById(`winner${prizeCapitalized}`);
+            const buttonElement = document.getElementById(`raffleBtn${prizeCapitalized}`);
+            if (displayElement && winner) {
+                displayElement.innerHTML = `<div class="winner-name">${winner.nombre}</div><div class="winner-phone">${winner.telefono}</div>`;
+                buttonElement.disabled = true;
+                buttonElement.textContent = "Ganador Elegido";
+            }
+        };
+
+        const animateAndRevealWinner = (prize, winnerToReveal) => {
+            const prizeCapitalized = prize.charAt(0).toUpperCase() + prize.slice(1);
+            const displayElement = document.getElementById(`winner${prizeCapitalized}`);
+            const scrollingElement = document.getElementById(`scrolling${prizeCapitalized}`);
+            const buttonElement = document.getElementById(`raffleBtn${prizeCapitalized}`);
+            
+            buttonElement.disabled = true;
+            displayElement.style.display = 'none';
+            scrollingElement.style.display = 'block';
+            isAnimating[prize] = true;
+
+            const animationInterval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * allParticipants.length);
+                const randomParticipant = allParticipants[randomIndex];
+                scrollingElement.textContent = randomParticipant.nombre;
+            }, 50);
+
+            setTimeout(() => {
+                clearInterval(animationInterval);
+                scrollingElement.style.display = 'none';
+                displayElement.style.display = 'block';
+                displayElement.innerHTML = `<div>¡El ganador es...</div>`;
+                
+                setTimeout(() => {
+                    displayWinnerContent(prize, winnerToReveal);
+                    isAnimating[prize] = false;
+                }, 2000); 
+            }, 20000);
+        };
+
+        const startRaffle = async (prize) => {
+            if (isAnimating[prize]) return;
+            if (allParticipants.length === 0) {
+                await loadParticipants();
+                if (allParticipants.length === 0) {
+                    customAlert('No se pudieron cargar los participantes.');
+                    return;
+                }
+            }
+            const winnerData = localStorage.getItem(`${prize}Winner`);
+            let winner;
+            if (winnerData) {
+                winner = JSON.parse(winnerData);
+            } else {
+                winner = allParticipants[Math.floor(Math.random() * allParticipants.length)];
+                localStorage.setItem(`${prize}Winner`, JSON.stringify(winner));
+            }
+            animateAndRevealWinner(prize, winner);
+        };
+        
+        // Simplicamos la lógica de los botones para que siempre llamen a startRaffle
+        document.getElementById('raffleBtnMoto').addEventListener('click', () => {
+            startRaffle('moto');
+        });
+
+        document.getElementById('raffleBtnPaellera').addEventListener('click', () => {
+            startRaffle('paellera');
+        });
+
+        const customAlert = (message) => {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '50%';
+            modal.style.left = '50%';
+            modal.style.transform = 'translate(-50%, -50%)';
+            modal.style.padding = '20px';
+            modal.style.backgroundColor = '#2a2a2a';
+            modal.style.color = '#fff';
+            modal.style.borderRadius = '10px';
+            modal.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            modal.style.zIndex = '1000';
+            modal.style.maxWidth = '300px';
+            modal.textContent = message;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.remove(), 3000);
+        };
+    </script>
+</body>
+</html>

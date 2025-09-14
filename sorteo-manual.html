@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            flex-direction: column;
+        }
+        .admin-panel {
+            background-color: #121212;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid #333;
+            max-width: 500px;
+            width: 100%;
+        }
+        .prize-card {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            padding: 2rem;
+            border-radius: 1.25rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+        }
+        .prize-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        .form-control {
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .form-control label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .form-control input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+            transition: border-color 0.3s ease;
+        }
+        .form-control input:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+        .raffle-button {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(180deg, #FFD700, #E0B400);
+            color: #121212;
+            width: 100%;
+        }
+        .raffle-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        .error-message {
+            color: #FF6666;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        /* Clase 'hidden' para ocultar elementos */
+        .hidden {
+            display: none;
+        }
+        .reset-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background-color 0.3s;
+        }
+        .reset-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body class="bg-black text-white flex flex-col items-center justify-center p-8">
+    <div class="admin-panel">
+        <h1 class="text-3xl font-extrabold text-white mb-8 text-center leading-tight">Panel de Administración de Ganadores</h1>
+        <p class="text-sm text-gray-400 mb-8">Establece al ganador de cada premio de forma independiente.</p>
+
+        <div class="prize-card">
+            <h2 class="prize-title mb-4">Ganador de la Moto Honda CB100</h2>
+            <div class="form-control">
+                <label for="winnerMotoName">Nombre o teléfono del Ganador</label>
+                <input type="text" id="winnerMotoName" placeholder="Busca al participante aquí">
+            </div>
+            <button id="setWinnerMotoBtn" class="raffle-button mt-6">Establecer Ganador</button>
+            <p id="errorMoto" class="error-message hidden">Participante no encontrado.</p>
+        </div>
+
+        <div class="prize-card">
+            <h2 class="prize-title mb-4">Ganador de la Paellera Royal Prestige</h2>
+            <div class="form-control">
+                <label for="winnerPaelleraName">Nombre o teléfono del Ganador</label>
+                <input type="text" id="winnerPaelleraName" placeholder="Busca al participante aquí">
+            </div>
+            <button id="setWinnerPaelleraBtn" class="raffle-button mt-6">Establecer Ganador</button>
+            <p id="errorPaellera" class="error-message hidden">Participante no encontrado.</p>
+        </div>
+
+        <button id="resetWinnersBtn" class="reset-button">Reiniciar Ganadores</button>
+    </div>
+
+    <script>
+        // Función para buscar a un participante en el archivo participantes.json
+        const findParticipant = async (query) => {
+            try {
+                const response = await fetch('participantes.json');
+                if (!response.ok) {
+                    throw new Error('Error al cargar la lista de participantes.');
+                }
+                const participants = await response.json();
+                const cleanedQuery = query.toLowerCase().trim();
+                // Busca por nombre o por teléfono
+                return participants.find(p => p.nombre.toLowerCase().includes(cleanedQuery) || p.telefono.includes(cleanedQuery));
+            } catch (error) {
+                console.error("Error buscando al participante:", error);
+                return null;
+            }
+        };
+
+        // Función para establecer el ganador en localStorage
+        const setWinner = async (prize, inputElement, errorElement) => {
+            const query = inputElement.value;
+            if (!query.trim()) {
+                errorElement.textContent = "Por favor, ingrese un nombre o teléfono.";
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            // Busca al participante en el JSON
+            const participant = await findParticipant(query);
+            if (!participant) {
+                errorElement.textContent = "No se encontró el participante. Intente de nuevo.";
+                errorElement.classList.remove('hidden');
+                return;
+            }
+            
+            errorElement.classList.add('hidden');
+
+            // Guarda el objeto del ganador en localStorage
+            // Usamos JSON.stringify para convertir el objeto a texto
+            localStorage.setItem(`${prize}Winner`, JSON.stringify(participant));
+            
+            inputElement.value = ''; // Limpia el campo
+            customAlert(`Ganador de la ${prize} establecido: ${participant.nombre}`);
+        };
+
+        // Event Listeners para los botones
+        document.getElementById('setWinnerMotoBtn').addEventListener('click', () => {
+            setWinner('moto', document.getElementById('winnerMotoName'), document.getElementById('errorMoto'));
+        });
+
+        document.getElementById('setWinnerPaelleraBtn').addEventListener('click', () => {
+            setWinner('paellera', document.getElementById('winnerPaelleraName'), document.getElementById('errorPaellera'));
+        });
+        
+        // Listener para el nuevo botón de reinicio
+        document.getElementById('resetWinnersBtn').addEventListener('click', () => {
+            localStorage.removeItem('motoWinner');
+            localStorage.removeItem('paelleraWinner');
+            customAlert('Los ganadores han sido reiniciados. Ahora puedes sortear de nuevo en la página principal.');
+        });
+        
+        // Alerta personalizada (reemplaza la función alert original)
+        function customAlert(message) {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '50%';
+            modal.style.left = '50%';
+            modal.style.transform = 'translate(-50%, -50%)';
+            modal.style.padding = '20px';
+            modal.style.backgroundColor = '#2a2a2a';
+            modal.style.color = '#fff';
+            modal.style.borderRadius = '10px';
+            modal.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            modal.style.zIndex = '1000';
+            modal.style.maxWidth = '300px';
+            modal.textContent = message;
+            document.body.appendChild(modal);
+
+            setTimeout(() => {
+                modal.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
